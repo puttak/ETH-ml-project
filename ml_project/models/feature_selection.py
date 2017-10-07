@@ -52,7 +52,7 @@ class VarianceSelection(BaseEstimator, TransformerMixin):
 
 class KBestSelection(BaseEstimator, TransformerMixin):
     """"Select best features based on their variance"""
-    def __init__(self, k):
+    def __init__(self, k=1000):
         self.k = k
         self.components = None
 
