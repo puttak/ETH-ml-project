@@ -36,7 +36,7 @@ class VarianceSelection():
     def __init__(self, threshold=50):
         self.threshold = threshold
 
-    def fit_transform(self, X, y=none):
+    def fit_transform(self, X, y=None):
         X = check_array(X)
         selection = VarianceThreshold(self.threshold)
         X_new = selection.fit_transform(X)
