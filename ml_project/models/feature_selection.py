@@ -35,9 +35,17 @@ class VarianceSelection():
     """"Select best features based on their variance"""
     def __init__(self, threshold=50):
         self.threshold = threshold
+        self.selection = None
 
-    def fit_transform(self, X, y=None):
+    def fit(self, X, y=None):
         X = check_array(X)
-        selection = VarianceThreshold(self.threshold)
-        X_new = selection.fit_transform(X)
+        self.selection = VarianceThreshold(self.threshold)
+
+        return self
+
+    def transform(self, X, y=None):
+        check_is_fitted(self, ["components"])
+        X = check_array(X)
+        X_new = self.selection.transform(X)
+
         return X_new
