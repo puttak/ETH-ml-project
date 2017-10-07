@@ -31,7 +31,7 @@ class RandomSelection(BaseEstimator, TransformerMixin):
 
         return X_new
 
-class VarianceSelection():
+class VarianceSelection(BaseEstimator, TransformerMixin):
     """"Select best features based on their variance"""
     def __init__(self, threshold=50):
         self.threshold = threshold
