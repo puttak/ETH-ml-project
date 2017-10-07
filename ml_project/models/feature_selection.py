@@ -41,7 +41,7 @@ class VarianceSelection(BaseEstimator, TransformerMixin):
         X = check_array(X)
         self.components = VarianceThreshold(self.threshold)
         self.components.fit(X)
-
+        print(self.components.get_support(indices=True))
         return self
 
     def transform(self, X, y=None):

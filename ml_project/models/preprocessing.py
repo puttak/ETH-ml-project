@@ -14,5 +14,4 @@ class Flatten(BaseEstimator, TransformerMixin):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176) # Bad practice: hard-coded dimensions
         X = X.mean(axis=self.dim)
-        print('reduced dimensionality of data')
         return X.reshape(X.shape[0], -1)
