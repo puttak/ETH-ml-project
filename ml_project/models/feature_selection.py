@@ -40,6 +40,7 @@ class VarianceSelection(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = check_array(X)
         self.components = VarianceThreshold(self.threshold)
+        self.components.fit(X)
 
         return self
 
