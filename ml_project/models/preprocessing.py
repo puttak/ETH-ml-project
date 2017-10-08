@@ -1,6 +1,7 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_array
 from sklearn import preprocessing
+import numpy as np
 
 class Standardize(BaseEstimator, TransformerMixin):
     """Rescale data so that features have the properties of a normal distribution"""
@@ -13,9 +14,11 @@ class Standardize(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176)
-        X = X.mean(axis=2).reshape(X.shape[0], -1)
-        # X = X[:, :, 104, :].reshape(X.shape[0], -1)
-        return preprocessing.scale(X)
+        x_cut = X[:, :, 104, :].reshape(X.shape[0], -1)
+        y_cut = X[:, 80, :, :].reshape(X.shape[0], -1)
+        z_cut = X[:, :, :, 80].reshape(X.shape[0], -1)
+        stack = np.hstack([x_cut, y_cut, z_cut])
+        return preprocessing.scale(stack)
 
 
 class Flatten(BaseEstimator, TransformerMixin):
