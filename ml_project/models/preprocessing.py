@@ -19,8 +19,9 @@ class Standardize(BaseEstimator, TransformerMixin):
         y_cut = X[:, 80, :, :].reshape(X.shape[0], -1)
         z_cut = X[:, :, :, 80].reshape(X.shape[0], -1)
         stack = np.hstack([x_cut, y_cut, z_cut])
-        X_standard = preprocessing.scale(stack)
-        X_standard = preprocessing.normalize(stack, norm=self.norm)
+        idx = (np.std(stack, axis=0) == 0)
+        X_standard = preprocessing.scale(stack[:, ~idx])
+        X_standard = preprocessing.normalize(X_standard, norm=self.norm)
         return X_standard
 
 
