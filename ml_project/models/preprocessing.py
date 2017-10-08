@@ -5,7 +5,8 @@ import numpy as np
 
 class Standardize(BaseEstimator, TransformerMixin):
     """Rescale data so that features have the properties of a normal distribution"""
-    def __init__(self):
+    def __init__(self, norm='l1'):
+        self.norm = norm
         pass
 
     def fit(self, X, y=None):
@@ -19,7 +20,7 @@ class Standardize(BaseEstimator, TransformerMixin):
         z_cut = X[:, :, :, 80].reshape(X.shape[0], -1)
         stack = np.hstack([x_cut, y_cut, z_cut])
         X_standard = preprocessing.scale(stack)
-        X_standard = preprocessing.normalize(stack, norm='l1')
+        X_standard = preprocessing.normalize(stack, norm=self.norm)
         return X_standard
 
 
