@@ -7,7 +7,6 @@ class Standardize(BaseEstimator, TransformerMixin):
     """Rescale data so that features have the properties of a normal distribution"""
     def __init__(self, norm='l1'):
         self.norm = norm
-        pass
 
     def fit(self, X, y=None):
         return self
