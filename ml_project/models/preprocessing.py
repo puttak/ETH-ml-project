@@ -13,9 +13,8 @@ class Standardize(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176)
-        X = X[:, :, 104, :]
-        X_scaled = preprocessing.scale(X)
-        return X_scaled.reshape(X.shape[0], -1)
+        X = X[:, :, 104, :].reshape(X.shape[0], -1)
+        return preprocessing.scale(X)
 
 
 class Flatten(BaseEstimator, TransformerMixin):
