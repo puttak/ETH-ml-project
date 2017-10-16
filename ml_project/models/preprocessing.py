@@ -28,7 +28,7 @@ class Histogramize(BaseEstimator, TransformerMixin):
                 for j in range(len(a1)):
                     a2 = np.array_split(a1[j], self.ncubes, axis=2)
                     for k in range(len(a2)):
-                        hist = np.histogram(a2[k], bins=self.nbins)
+                        hist = np.histogram(a2[k], bins=self.nbins, range=(0, 3000))
                         features.append(hist[0])
                         n_cubes += 1
             features = np.array(features).flatten()
