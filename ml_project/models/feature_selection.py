@@ -58,6 +58,8 @@ class KBestSelection(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         X = check_array(X)
+        if self.k > X.shape[1]:
+            self.k = 'all'
         self.components = SelectKBest(f_regression, k=self.k)
         self.components.fit(X, y)
         return self
