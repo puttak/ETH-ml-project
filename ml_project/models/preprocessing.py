@@ -4,10 +4,11 @@ from sklearn import preprocessing
 import numpy as np
 
 class Histogramize(BaseEstimator, TransformerMixin):
-    def __init__(self, ncubes=9, nbins=100, spacing=10):
+    def __init__(self, ncubes=9, nbins=100, spacing=10, scaling=False):
         self.ncubes = ncubes
         self.nbins = nbins
         self.spacing = spacing
+        self.scaling = scaling
 
     def fit(self, X, y=None):
         return self
@@ -35,6 +36,8 @@ class Histogramize(BaseEstimator, TransformerMixin):
             X_new.append(features)
             print("- sample #{}: n_cubes = {}, features = {}".format(s+1, n_cubes, len(features)))
         X_new = np.array(X_new)
+        if self.scaling:
+            X_new = preprocessing.scale(X_new)
         return X_new
 
 
