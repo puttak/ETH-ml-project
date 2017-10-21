@@ -17,6 +17,7 @@ class Histogramize(BaseEstimator, TransformerMixin):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176)
         X = X[:, self.spacing:-self.spacing, self.spacing:-self.spacing, self.spacing:-self.spacing]
+        print("\n----------------------------------\n")
         print("Data shape after removing boundary: {}".format(X.shape))
         print("Size of cubes: ({}, {}, {})".format(int(X.shape[1]/self.ncubes), int(X.shape[2]/self.ncubes), int(X.shape[3]/self.ncubes)))
         X_new = []
@@ -34,7 +35,8 @@ class Histogramize(BaseEstimator, TransformerMixin):
                         n_cubes += 1
             features = np.array(features).flatten()
             X_new.append(features)
-            print("- sample #{}: n_cubes = {}, features = {}".format(s+1, n_cubes, len(features)))
+            #print("- sample #{}: n_cubes = {}, features = {}".format(s+1, n_cubes, len(features)))
+        print("Number of cubes: {}, Number of features: {}".format(n_cubes, len(features)))
         X_new = np.array(X_new)
         if self.scaling:
             X_new = preprocessing.scale(X_new)

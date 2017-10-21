@@ -33,7 +33,7 @@ class RandomSelection(BaseEstimator, TransformerMixin):
 
 class VarianceSelection(BaseEstimator, TransformerMixin):
     """"Select best features based on their variance"""
-    def __init__(self, threshold=50):
+    def __init__(self, threshold=0.0):
         self.threshold = threshold
         self.components = None
 
@@ -47,7 +47,7 @@ class VarianceSelection(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["components"])
         X = check_array(X)
         X_new = self.components.transform(X)
-
+        print("Number of features after VarianceSelection(threshold={}): {}".format(self.threshold, X_new.shape[1]))
         return X_new
 
 class KBestSelection(BaseEstimator, TransformerMixin):
@@ -59,8 +59,10 @@ class KBestSelection(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = check_array(X)
         if self.k > X.shape[1]:
-            self.k = 'all'
-        self.components = SelectKBest(f_regression, k=self.k)
+            self.components = SelectKBest(f_regression, k='all')
+            print("WARNING: KBestSelection used k='all'")
+        else:
+            self.components = SelectKBest(f_regression, k=self.k)
         self.components.fit(X, y)
         return self
 
@@ -68,5 +70,5 @@ class KBestSelection(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["components"])
         X = check_array(X)
         X_new = self.components.transform(X)
-
+        print("Number of features after KBestSelection(k={}): {}".format(self.k, X_new.shape[1]))
         return X_new
