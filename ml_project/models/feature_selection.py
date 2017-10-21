@@ -2,7 +2,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
-from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_regression
+from sklearn.feature_selection import VarianceThreshold, SelectKBest, SelectPercentile, f_regression
 
 
 class RandomSelection(BaseEstimator, TransformerMixin):
@@ -71,4 +71,23 @@ class KBestSelection(BaseEstimator, TransformerMixin):
         X = check_array(X)
         X_new = self.components.transform(X)
         print("Number of features after KBestSelection(k={}): {}".format(self.k, X_new.shape[1]))
+        return X_new
+
+class PercentileSelection(BaseEstimator, TransformerMixin):
+    """"Select best features based on their variance"""
+    def __init__(self, percentile=10):
+        self.percentile = percentile
+        self.components = None
+
+    def fit(self, X, y=None):
+        X = check_array(X)
+        self.components = SelectPercentile(f_regression, percentile=self.percentile)
+        self.components.fit(X, y)
+        return self
+
+    def transform(self, X, y=None):
+        check_is_fitted(self, ["components"])
+        X = check_array(X)
+        X_new = self.components.transform(X)
+        print("Number of features after PercentileSelection(percentile={}): {}".format(self.percentile, X_new.shape[1]))
         return X_new
