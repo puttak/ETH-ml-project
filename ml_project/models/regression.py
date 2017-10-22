@@ -1,11 +1,31 @@
-import sklearn as skl
+from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
 import pandas as pd
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
+from sklearn.linear_model import LinearRegression
 from matplotlib import pyplot as plt
 
+class LinearEstimator(LinearRegression, TransformerMixin):
+    def __init__(self):
+        super(LinearEstimator, self).__init__()
 
-class KernelEstimator(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def fit(self, X, y):
+        X, y = check_X_y(X, y)
+        super(LinearEstimator, self).fit(X, y)
+        return self
+
+    def predict(self, X):
+        check_is_fitted(self, ["coef_", "intercept_"])
+        X = check_array(X)
+        prediction = super(LinearEstimator, self).predict(X)
+        return prediction
+
+    def score(self, X, y):
+        scores = (self.predict(X) - y)**2 / len(y)
+        score = np.sum(scores)
+        return score
+
+class KernelEstimator(BaseEstimator, TransformerMixin):
     """docstring"""
     def __init__(self, save_path=None):
         super(KernelEstimator, self).__init__()
