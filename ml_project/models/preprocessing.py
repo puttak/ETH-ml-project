@@ -4,8 +4,8 @@ from sklearn import preprocessing
 import numpy as np
 
 class Histogramize(BaseEstimator, TransformerMixin):
-    def __init__(self, ncubes=9, nbins=100, spacing=10, scaling=False):
-        self.ncubes = ncubes
+    def __init__(self, lcubes=9, nbins=100, spacing=10, scaling=False):
+        self.lcubes = lcubes
         self.nbins = nbins
         self.spacing = spacing
         self.scaling = scaling
@@ -19,16 +19,16 @@ class Histogramize(BaseEstimator, TransformerMixin):
         X = X[:, self.spacing:-self.spacing, self.spacing:-self.spacing, self.spacing:-self.spacing]
         print("\n----------------------------------\n")
         print("Data shape after removing boundary: {}".format(X.shape))
-        print("Size of cubes: ({}, {}, {})".format(int(X.shape[1]/self.ncubes), int(X.shape[2]/self.ncubes), int(X.shape[3]/self.ncubes)))
+        print("Number of cubes for each axis: ({}, {}, {})".format(int(X.shape[1]/self.lcubes), int(X.shape[2]/self.lcubes), int(X.shape[3]/self.lcubes)))
         X_new = []
         for s in range(X.shape[0]):
             features = []
-            a0 = np.array_split(X[s], self.ncubes, axis=0)
+            a0 = np.array_split(X[s], int(X.shape[1]/self.lcubes), axis=0)
             n_cubes = 0
             for i in range(len(a0)):
-                a1 = np.array_split(a0[i], self.ncubes, axis=1)
+                a1 = np.array_split(a0[i], int(X.shape[2]/self.lcubes), axis=1)
                 for j in range(len(a1)):
-                    a2 = np.array_split(a1[j], self.ncubes, axis=2)
+                    a2 = np.array_split(a1[j], int(X.shape[3]/self.lcubes), axis=2)
                     for k in range(len(a2)):
                         hist = np.histogram(a2[k], bins=self.nbins, range=(0, 3000))
                         features.append(hist[0])
