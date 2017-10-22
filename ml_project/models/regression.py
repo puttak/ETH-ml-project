@@ -5,6 +5,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.linear_model import LinearRegression
 from matplotlib import pyplot as plt
 
+
 class LinearEstimator(LinearRegression, TransformerMixin):
     def __init__(self):
         super(LinearEstimator, self).__init__()
@@ -24,6 +25,7 @@ class LinearEstimator(LinearRegression, TransformerMixin):
         scores = (self.predict(X) - y)**2 / len(y)
         score = np.sum(scores)
         return score
+
 
 class KernelEstimator(BaseEstimator, TransformerMixin):
     """docstring"""

@@ -2,7 +2,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
-from sklearn.feature_selection import VarianceThreshold, SelectKBest, SelectPercentile, f_regression
+from sklearn.feature_selection import VarianceThreshold, f_regression
+from sklearn.feature_selection import SelectKBest, SelectPercentile
 
 
 class RandomSelection(BaseEstimator, TransformerMixin):
@@ -31,6 +32,7 @@ class RandomSelection(BaseEstimator, TransformerMixin):
 
         return X_new
 
+
 class VarianceSelection(BaseEstimator, TransformerMixin):
     """"Select best features based on their variance"""
     def __init__(self, threshold=0.0):
@@ -47,8 +49,10 @@ class VarianceSelection(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["components"])
         X = check_array(X)
         X_new = self.components.transform(X)
-        print("Number of features after VarianceSelection(threshold={}): {}".format(self.threshold, X_new.shape[1]))
+        print("Number of features after VarianceSelection(threshold={}): {}"
+              .format(self.threshold, X_new.shape[1]))
         return X_new
+
 
 class KBestSelection(BaseEstimator, TransformerMixin):
     """"Select best features based on their variance"""
@@ -70,8 +74,10 @@ class KBestSelection(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["components"])
         X = check_array(X)
         X_new = self.components.transform(X)
-        print("Number of features after KBestSelection(k={}): {}".format(self.k, X_new.shape[1]))
+        print("Number of features after KBestSelection(k={}): {}"
+              .format(self.k, X_new.shape[1]))
         return X_new
+
 
 class PercentileSelection(BaseEstimator, TransformerMixin):
     """"Select best features based on their variance"""
@@ -81,7 +87,8 @@ class PercentileSelection(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         X = check_array(X)
-        self.components = SelectPercentile(f_regression, percentile=self.percentile)
+        self.components = SelectPercentile(f_regression,
+                                           percentile=self.percentile)
         self.components.fit(X, y)
         return self
 
@@ -89,5 +96,6 @@ class PercentileSelection(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["components"])
         X = check_array(X)
         X_new = self.components.transform(X)
-        print("Number of features after PercentileSelection(percentile={}): {}".format(self.percentile, X_new.shape[1]))
+        print("Number of features after PercentileSelection(percentile={}): {}"
+              .format(self.percentile, X_new.shape[1]))
         return X_new

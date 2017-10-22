@@ -3,7 +3,12 @@ from sklearn.utils.validation import check_array
 from sklearn import preprocessing
 import numpy as np
 
+
 class Histogramize(BaseEstimator, TransformerMixin):
+    """
+        Sub sample the data cube into smaller cubes and compute a histogram
+        of the voxel intensities for each buce
+    """
     def __init__(self, lcubes=9, nbins=100, spacing=10, scaling=False):
         self.lcubes = lcubes
         self.nbins = nbins
@@ -16,7 +21,8 @@ class Histogramize(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176)
-        X = X[:, self.spacing:-self.spacing, self.spacing:-self.spacing, self.spacing:-self.spacing]
+        s = self.spacing
+        X = X[:, s:-s, s:-s, s:-s]
         print("\n----------------------------------\n")
         print("Data shape after removing boundary: {}".format(X.shape))
         nx = int(X.shape[1]/self.lcubes)
@@ -31,7 +37,8 @@ class Histogramize(BaseEstimator, TransformerMixin):
         stopx = -int(np.ceil(dx/2.0))
         stopy = -int(np.ceil(dy/2.0))
         stopz = -int(np.ceil(dz/2.0))
-        print("Number of cubes for each axis: {}x{}x{} = {}".format(nx, ny, nz, nx*ny*nz))
+        print("Number of cubes for each axis: {}x{}x{} = {}"
+              .format(nx, ny, nz, nx*ny*nz))
         X = X[:, startx:stopx, starty:stopy, startz:stopz]
         print("Data shape after removing excess voxels: {}".format(X.shape))
         X_new = []
@@ -44,8 +51,9 @@ class Histogramize(BaseEstimator, TransformerMixin):
                 for j in range(len(a1)):
                     a2 = np.array_split(a1[j], nz, axis=2)
                     for k in range(len(a2)):
-                        cube_shape = np.array(a2[k].shape)
-                        hist = np.histogram(a2[k], bins=self.nbins, range=(0, 3000))
+                        hist = np.histogram(
+                            a2[k], bins=self.nbins,
+                            range=(0, 3000))
                         features.append(hist[0])
                         n_cubes += 1
             features = np.array(features).flatten()
@@ -58,7 +66,10 @@ class Histogramize(BaseEstimator, TransformerMixin):
 
 
 class Standardize(BaseEstimator, TransformerMixin):
-    """Rescale data so that features have the properties of a normal distribution"""
+    """
+        Rescale data so that features have the properties of a
+        normal distribution, i.e. mean=0 and std=1
+    """
     def __init__(self, norm='l1'):
         self.norm = norm
 
@@ -79,7 +90,9 @@ class Standardize(BaseEstimator, TransformerMixin):
 
 
 class Flatten(BaseEstimator, TransformerMixin):
-    """Flatten"""
+    """
+        Flatten
+    """
     def __init__(self, dim=2):
         self.dim = dim
 
@@ -88,6 +101,6 @@ class Flatten(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         X = check_array(X)
-        X = X.reshape(-1, 176, 208, 176) # Bad practice: hard-coded dimensions
+        X = X.reshape(-1, 176, 208, 176)  # Bad practice: hard-coded dimensions
         X = X.mean(axis=self.dim)
-        return X_scaled.reshape(X.shape[0], -1)
+        return X.reshape(X.shape[0], -1)

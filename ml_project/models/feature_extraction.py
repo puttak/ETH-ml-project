@@ -1,10 +1,10 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.utils import check_random_state
-from sklearn.utils.validation import check_array, check_is_fitted
+from sklearn.utils.validation import check_array
 from sklearn.feature_extraction.image import grid_to_graph
 from sklearn.cluster import AgglomerativeClustering
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 class ClusterExtraction(BaseEstimator, TransformerMixin):
     """Extract clusters to create features"""
@@ -24,7 +24,9 @@ class ClusterExtraction(BaseEstimator, TransformerMixin):
         for cut in cuts:
             for sample in cut:
                 connec = grid_to_graph(*sample.shape)
-                ward = AgglomerativeClustering(n_clusters=self.n_clusters, linkage='ward', connectivity=connec)
+                ward = AgglomerativeClustering(
+                    n_clusters=self.n_clusters,
+                    linkage='ward', connectivity=connec)
                 x = np.reshape(sample, (-1, 1))
                 ward.fit(x)
                 label = np.reshape(ward.labels_, sample.shape)
