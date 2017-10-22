@@ -1,0 +1,42 @@
+{
+  "name": "ml_project",
+  "record_store": {
+    "db_file": "/scratch/bortonem/ml-project/.smt/records",
+    "type": "sumatra.recordstore.django_store.DjangoRecordStore"
+  },
+  "data_label": "cmdline",
+  "timestamp_format": "%Y%m%d-%H%M%S",
+  "on_changed": "error",
+  "input_datastore": {
+    "root": "/scratch/bortonem/ml-project/data",
+    "type": "sumatra.datastore.filesystem.FileSystemDataStore"
+  },
+  "description": "",
+  "allow_command_line_parameters": true,
+  "_most_recent": "20171022-195737",
+  "sumatra_version": "0.8dev",
+  "label_generator": "timestamp",
+  "default_main_file": "run.py",
+  "default_launch_mode": {
+    "options": null,
+    "working_directory": "/scratch/bortonem/ml-project",
+    "type": "sumatra.launch.SerialLaunchMode"
+  },
+  "data_store": {
+    "root": "/scratch/bortonem/ml-project/data",
+    "type": "sumatra.datastore.filesystem.FileSystemDataStore"
+  },
+  "plugins": [],
+  "default_repository": {
+    "url": "/scratch/bortonem/ml-project",
+    "upstream": "https://gitlab.vis.ethz.ch/vwegmayr/ml-project.git",
+    "type": "sumatra.versioncontrol._git.GitRepository"
+  },
+  "default_executable": {
+    "name": "Python",
+    "version": "3.5.3",
+    "options": "",
+    "path": "/scratch/bortonem/.pyenv/versions/miniconda3-latest/envs/ml_project/bin/python",
+    "type": "sumatra.programs.PythonExecutable"
+  }
+}
