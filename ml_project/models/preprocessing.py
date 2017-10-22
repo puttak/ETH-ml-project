@@ -19,27 +19,41 @@ class Histogramize(BaseEstimator, TransformerMixin):
         X = X[:, self.spacing:-self.spacing, self.spacing:-self.spacing, self.spacing:-self.spacing]
         print("\n----------------------------------\n")
         print("Data shape after removing boundary: {}".format(X.shape))
-        print("Number of cubes for each axis: ({}, {}, {})".format(int(X.shape[1]/self.lcubes), int(X.shape[2]/self.lcubes), int(X.shape[3]/self.lcubes)))
+        nx = int(X.shape[1]/self.lcubes)
+        ny = int(X.shape[2]/self.lcubes)
+        nz = int(X.shape[3]/self.lcubes)
+        dx = X.shape[1] - nx*self.lcubes
+        dy = X.shape[2] - ny*self.lcubes
+        dz = X.shape[3] - nz*self.lcubes
+        startx = int(np.floor(dx/2.0))
+        starty = int(np.floor(dy/2.0))
+        startz = int(np.floor(dz/2.0))
+        stopx = -int(np.ceil(dx/2.0))
+        stopy = -int(np.ceil(dy/2.0))
+        stopz = -int(np.ceil(dz/2.0))
+        print("Number of cubes for each axis: {}x{}x{} = {}".format(nx, ny, nz, nx*ny*nz))
+        X = X[:, startx:stopx, starty:stopy, startz:stopz]
+        print("Data shape after removing excess voxels: {}".format(X.shape))
         X_new = []
         for s in range(X.shape[0]):
             features = []
-            a0 = np.array_split(X[s], int(X.shape[1]/self.lcubes), axis=0)
+            a0 = np.array_split(X[s], nx, axis=0)
             n_cubes = 0
             for i in range(len(a0)):
-                a1 = np.array_split(a0[i], int(X.shape[2]/self.lcubes), axis=1)
+                a1 = np.array_split(a0[i], ny, axis=1)
                 for j in range(len(a1)):
-                    a2 = np.array_split(a1[j], int(X.shape[3]/self.lcubes), axis=2)
+                    a2 = np.array_split(a1[j], nz, axis=2)
                     for k in range(len(a2)):
+                        cube_shape = np.array(a2[k].shape)
                         hist = np.histogram(a2[k], bins=self.nbins, range=(0, 3000))
                         features.append(hist[0])
                         n_cubes += 1
             features = np.array(features).flatten()
             X_new.append(features)
-            #print("- sample #{}: n_cubes = {}, features = {}".format(s+1, n_cubes, len(features)))
-        print("Number of cubes: {}, Number of features: {}".format(n_cubes, len(features)))
         X_new = np.array(X_new)
         if self.scaling:
             X_new = preprocessing.scale(X_new)
+        print("Number of features: {}".format(X_new.shape[1]))
         return X_new
 
 
