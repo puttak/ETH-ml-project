@@ -34,7 +34,7 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
-        y = np.tan(y)
+        y = np.tan((y + 1.0)*np.pi/2.0)
         super(MLLinearPredictor, self).fit(X, y)
         return self
 
@@ -42,7 +42,7 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
         prediction = super(MLLinearPredictor, self).predict(X)
-        return np.arctan(prediction)
+        return np.arctan(prediction)*2.0/np.pi - 1.0
 
     def score(self, X, y):
         a = self.predict_proba(X)
