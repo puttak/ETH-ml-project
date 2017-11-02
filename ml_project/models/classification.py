@@ -34,6 +34,7 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
+        y = np.tanh(y)
         super(MLLinearPredictor, self).fit(X, y)
         return self
 
@@ -41,10 +42,10 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
         prediction = super(MLLinearPredictor, self).predict(X)
-        return prediction
+        return np.arctanh(prediction)
 
     def score(self, X, y):
-        a = self.predict(X)
+        a = self.predict_proba(X)
         rhos = np.zeros(a.shape[0])
         for i in range(a.shape[0]):
             rhos[i] = spearmanr(a[i, :], y[i, :], axis=0)[0]
