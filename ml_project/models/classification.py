@@ -30,17 +30,17 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
     Perform linear regression on the data for every target label independently
     """
     def __init__(self):
-        super(LinearEstimator, self).__init__()
+        super(MLLinearPredictor, self).__init__()
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
-        super(LinearEstimator, self).fit(X, y)
+        super(MLLinearPredictor, self).fit(X, y)
         return self
 
     def predict(self, X):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
-        prediction = super(LinearEstimator, self).predict(X)
+        prediction = super(MLLinearPredictor, self).predict(X)
         return prediction
 
     def score(self, X, y):
