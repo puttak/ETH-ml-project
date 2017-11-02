@@ -37,7 +37,7 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
         super(MLLinearPredictor, self).fit(X, y)
         return self
 
-    def predict(self, X):
+    def predict_proba(self, X):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
         prediction = super(MLLinearPredictor, self).predict(X)
