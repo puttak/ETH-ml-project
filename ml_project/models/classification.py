@@ -42,7 +42,10 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
         prediction = super(MLLinearPredictor, self).predict(X)
-        return np.arctan(prediction)*1.0/np.pi + 0.5
+        prediction = np.arctan(prediction)*1.0/np.pi + 0.5
+        for i in range(prediction.shape[0]):
+            prediction[i, :] = prediction[i, :] / sum(prediction[i, :])
+        return prediction
 
     def score(self, X, y):
         a = self.predict_proba(X)
