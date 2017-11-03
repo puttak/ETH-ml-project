@@ -4,27 +4,6 @@ from sklearn import preprocessing
 import numpy as np
 
 
-class Binarize(BaseEstimator, TransformerMixin):
-    """
-    Transform target probabilities of belonging to a class into binary labels
-    """
-    def __init__(self, threshold=0.5):
-        self.threshold = threshold
-
-    def fit(self, X, y):
-        return self
-
-    def transform(self, X, y=None):
-        idx = y > self.threshold
-        y_new = np.zeros_like(y)
-        y_new[idx] = 1
-        for i in range(y.shape[0]):
-            if sum(y_new[i, :]) == 0:
-                j = np.argmax(y[i, :])
-                y_new[i, j] = 1
-        return X, y_new
-
-
 class Histogramize(BaseEstimator, TransformerMixin):
     """
         Sub sample the data cube into smaller cubes and compute a histogram
