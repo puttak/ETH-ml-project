@@ -56,17 +56,19 @@ class MLLinearPredictor(LinearRegression, TransformerMixin):
         return score
 
 
-class MLLogisticRegression(LogisticRegression, TransformerMixin):
+class MLLogisticPredictor(LogisticRegression, TransformerMixin):
     """
     Perform multinomial logistic regression on dataset
     """
-    def __init__(self):
+    def __init__(self, threshold=0.5):
+        self.threshold = threshold
         super(MLLogisticRegression, self).__init__(solver='sag',
                                                    multi_class='multinomial')
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
-        super(MLLogisticRegression, self).fit(X, y)
+        y_new = self.classify(y)
+        super(MLLogisticRegression, self).fit(X, y_new)
         return self
 
     def predict_proba(self, X):
@@ -84,3 +86,9 @@ class MLLogisticRegression(LogisticRegression, TransformerMixin):
             rhos[i] = spearmanr(a[i, :], y[i, :], axis=0)[0]
         score = rhos.mean()
         return score
+
+    def classify(self, y):
+        y_new = np.zeros(y.shape[0])
+        for i in range(y.shape[0]):
+            y_new[i] = np.argmax(y[i, :])
+        return y_new
