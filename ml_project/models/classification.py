@@ -62,19 +62,19 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
     """
     def __init__(self, threshold=0.5):
         self.threshold = threshold
-        super(MLLogisticRegression, self).__init__(solver='sag',
+        super(MLLogisticPredictor, self).__init__(solver='sag',
                                                    multi_class='multinomial')
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
         y_new = self.classify(y)
-        super(MLLogisticRegression, self).fit(X, y_new)
+        super(MLLogisticPredictor, self).fit(X, y_new)
         return self
 
     def predict_proba(self, X):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
-        prediction = super(MLLogisticRegression, self).predict_proba(X)
+        prediction = super(MLLogisticPredictor, self).predict_proba(X)
         for i in range(prediction.shape[0]):
             prediction[i, :] = prediction[i, :] / sum(prediction[i, :])
         return prediction
