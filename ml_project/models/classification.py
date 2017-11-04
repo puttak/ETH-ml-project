@@ -60,10 +60,11 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
     """
     Perform multinomial logistic regression on dataset
     """
-    def __init__(self, threshold=0.5, solver='sag'):
+    def __init__(self, threshold=0.5, C=1.0, solver='sag'):
         self.threshold = threshold
-        super(MLLogisticPredictor, self).__init__(solver=solver,
-                                                   multi_class='multinomial')
+        super(MLLogisticPredictor, self).__init__(
+            C=C, solver=solver, multi_class='multinomial',
+            class_weight='balanced', n_jobs=4)
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
