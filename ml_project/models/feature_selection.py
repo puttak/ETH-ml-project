@@ -1,6 +1,7 @@
+import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_random_state
-from sklearn.utils.validation import check_array, check_is_fitted
+from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
 from sklearn.feature_selection import VarianceThreshold, f_regression
 from sklearn.feature_selection import SelectKBest, SelectPercentile
@@ -110,6 +111,35 @@ class PercentileSelection(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["components"])
         X = check_array(X)
         X_new = self.components.transform(X)
+        print("Number of features after PercentileSelection(percentile={}): {}"
+              .format(self.percentile, X_new.shape[1]))
+        return X_new
+
+
+class MLPercentileSelection(BaseEstimator, TransformerMixin):
+    """"Select best features based on their variance"""
+    def __init__(self, percentile=10):
+        self.percentile = percentile
+        self.mask = None
+
+    def fit(self, X, y):
+        X, y = check_X_y(X, y, multi_output=True)
+        mask = np.zeros(X.shape[1], dtype=bool)
+        for i in range(y.shape[1]):
+            selector = SelectPercentile(f_regression,
+                                           percentile=self.percentile)
+            selector.fit(X, y[:, i])
+            if i == 0:
+                mask += selector.get_support()
+            else:
+                mask = np.logical_and(mask, selector.get_support())
+        self.mask = mask
+        return self
+
+    def transform(self, X, y=None):
+        check_is_fitted(self, ["mask"])
+        X = check_array(X)
+        X_new = X[:, self.mask]
         print("Number of features after PercentileSelection(percentile={}): {}"
               .format(self.percentile, X_new.shape[1]))
         return X_new
