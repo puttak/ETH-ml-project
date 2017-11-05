@@ -21,7 +21,7 @@ class Histogramize(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         X = check_array(X)
-        if self.max_int == 'max'
+        if self.max_int == 'max':
             self.max_int = np.amax(X, axis=-1).max()
         X = X.reshape(-1, 176, 208, 176)
         s = self.spacing
