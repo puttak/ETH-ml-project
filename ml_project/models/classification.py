@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.cluster import KMeans
 from scipy.stats import spearmanr
 
 
@@ -60,11 +61,13 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
     """
     Perform multinomial logistic regression on dataset
     """
-    def __init__(self, threshold=0.5, C=1.0, solver='sag'):
-        self.threshold = threshold
+    def __init__(self, n_classes=4, n_clusters=6, C=1.0, solver='sag'):
+        self.n_classes = n_classes
+        self.n_clusters = n_clusters
+        self.clusters_proba = []
         super(MLLogisticPredictor, self).__init__(
             C=C, solver=solver, multi_class='multinomial',
-            class_weight='balanced', n_jobs=4)
+            class_weight='balanced', n_jobs=n_clusters)
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
@@ -75,10 +78,11 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
     def predict_proba(self, X):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
-        prediction = super(MLLogisticPredictor, self).predict_proba(X)
-        for i in range(prediction.shape[0]):
-            prediction[i, :] = prediction[i, :] / sum(prediction[i, :])
-        return prediction
+        prediction = super(MLLogisticPredictor, self).predict(X)
+        class_proba = np.zeros((X.shape[0], 4))
+        for i in range(X.shape[0]):
+            class_proba[i] = self.clusters_proba[prediction[i]]
+        return class_proba
 
     def score(self, X, y):
         a = self.predict_proba(X)
@@ -89,7 +93,12 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
         return score
 
     def classify(self, y):
-        y_new = np.zeros(y.shape[0])
-        for i in range(y.shape[0]):
-            y_new[i] = np.argmax(y[i, :])
+        y_sorted = np.argsort(y)
+        kmeans = KMeans(n_clusters=self.n_clusters, random_state=37).fit(y_sorted)
+        y_new = kmeans.labels_
+        for i in range(self.n_clusters):
+            idx = (y_new == i)
+            cluster = y[idx, :]
+            mean_proba = np.mean(cluster, axis=0)
+            self.clusters_proba.append(mean_proba)
         return y_new
