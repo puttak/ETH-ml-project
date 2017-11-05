@@ -20,6 +20,7 @@ class Histogramize(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         X = check_array(X)
+        max_int = np.amax(X, axis=-1).max()
         X = X.reshape(-1, 176, 208, 176)
         s = self.spacing
         X = X[:, s:-s, s:-s, s:-s]
@@ -53,7 +54,7 @@ class Histogramize(BaseEstimator, TransformerMixin):
                     for k in range(len(a2)):
                         hist = np.histogram(
                             a2[k], bins=self.nbins,
-                            range=(0, 3000))
+                            range=(0, max_int))
                         features.append(hist[0])
                         n_cubes += 1
             features = np.array(features).flatten()
