@@ -3,7 +3,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
-from sklearn.feature_selection import VarianceThreshold, f_regression, chi2
+from sklearn.feature_selection import VarianceThreshold, f_regression, f_classif
 from sklearn.feature_selection import SelectKBest, SelectPercentile
 from ml_project.models.utils import KMeansTransform
 
@@ -128,7 +128,7 @@ class MLPercentileSelection(BaseEstimator, TransformerMixin):
         X, y = check_X_y(X, y, multi_output=True)
         mask = np.zeros(X.shape[1], dtype=bool)
         y_new, clusters_proba = KMeansTransform(y, self.n_clusters)
-        selector = SelectPercentile(chi2, percentile=self.percentile)
+        selector = SelectPercentile(f_classif, percentile=self.percentile)
         selector.fit(X, y_new)
         self.mask = selector.get_support()
         return self
