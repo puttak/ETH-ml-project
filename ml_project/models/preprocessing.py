@@ -9,20 +9,16 @@ class Histogramize(BaseEstimator, TransformerMixin):
         Sub sample the data cube into smaller cubes and compute a histogram
         of the voxel intensities for each buce
     """
-    def __init__(self, lcubes=9, nbins=100, spacing=10, scaling=False, max_int='max'):
+    def __init__(self, lcubes=9, nbins=100, spacing=10):
         self.lcubes = lcubes
         self.nbins = nbins
         self.spacing = spacing
-        self.scaling = scaling
-        self.max_int = max_int
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X, y=None):
         X = check_array(X)
-        if self.max_int == 'max':
-            self.max_int = np.amax(X, axis=-1).max()
         X = X.reshape(-1, 176, 208, 176)
         s = self.spacing
         X = X[:, s:-s, s:-s, s:-s]
@@ -54,16 +50,12 @@ class Histogramize(BaseEstimator, TransformerMixin):
                 for j in range(len(a1)):
                     a2 = np.array_split(a1[j], nz, axis=2)
                     for k in range(len(a2)):
-                        hist = np.histogram(
-                            a2[k], bins=self.nbins,
-                            range=(0, self.max_int))
+                        hist = np.histogram(a2[k], bins=self.nbins)
                         features.append(hist[0])
                         n_cubes += 1
             features = np.array(features).flatten()
             X_new.append(features)
         X_new = np.array(X_new)
-        if self.scaling:
-            X_new = preprocessing.scale(X_new)
         print("Number of features: {}".format(X_new.shape[1]))
         return X_new
 
