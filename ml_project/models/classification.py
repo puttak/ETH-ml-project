@@ -2,8 +2,8 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.cluster import KMeans
 from scipy.stats import spearmanr
+from ml_project.models.utils import KMeansTransform
 
 
 class MeanPredictor(BaseEstimator, TransformerMixin):
@@ -61,8 +61,7 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
     """
     Perform multinomial logistic regression on dataset
     """
-    def __init__(self, n_classes=4, n_clusters=6, C=1.0, solver='sag'):
-        self.n_classes = n_classes
+    def __init__(self, n_clusters=6, C=1.0, solver='sag'):
         self.n_clusters = n_clusters
         self.clusters_proba = []
         super(MLLogisticPredictor, self).__init__(
@@ -71,7 +70,7 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
-        y_new = self.classify(y)
+        y_new, self.clusters_proba = KMeansTransform(y, self.n_clusters)
         super(MLLogisticPredictor, self).fit(X, y_new)
         return self
 
@@ -91,14 +90,3 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
             rhos[i] = spearmanr(a[i, :], y[i, :], axis=0)[0]
         score = rhos.mean()
         return score
-
-    def classify(self, y):
-        y_sorted = np.argsort(y)
-        kmeans = KMeans(n_clusters=self.n_clusters, random_state=37).fit(y_sorted)
-        y_new = kmeans.labels_
-        for i in range(self.n_clusters):
-            idx = (y_new == i)
-            cluster = y[idx, :]
-            mean_proba = np.mean(cluster, axis=0)
-            self.clusters_proba.append(mean_proba)
-        return y_new

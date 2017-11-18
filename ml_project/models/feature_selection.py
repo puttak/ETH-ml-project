@@ -3,8 +3,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
-from sklearn.feature_selection import VarianceThreshold, f_regression
+from sklearn.feature_selection import VarianceThreshold, f_regression, chi2
 from sklearn.feature_selection import SelectKBest, SelectPercentile
+from ml_project.models.utils import KMeansTransform
 
 
 class NonZeroSelection(BaseEstimator, TransformerMixin):
@@ -118,22 +119,18 @@ class PercentileSelection(BaseEstimator, TransformerMixin):
 
 class MLPercentileSelection(BaseEstimator, TransformerMixin):
     """"Select best features based on their variance"""
-    def __init__(self, percentile=10):
+    def __init__(self, percentile=10, n_clusters=6):
         self.percentile = percentile
+        self.n_clusters = n_clusters
         self.mask = None
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
         mask = np.zeros(X.shape[1], dtype=bool)
-        for i in range(y.shape[1]):
-            selector = SelectPercentile(f_regression,
-                                           percentile=self.percentile)
-            selector.fit(X, y[:, i])
-            if i == 0:
-                mask += selector.get_support()
-            else:
-                mask = np.logical_and(mask, selector.get_support())
-        self.mask = mask
+        y_new, clusters_proba = KMeansTransform(y, self.n_clusters)
+        selector = SelectPercentile(chi2, percentile=self.percentile)
+        selector.fit(X, y_new)
+        self.mask = selector.get_support()
         return self
 
     def transform(self, X, y=None):
