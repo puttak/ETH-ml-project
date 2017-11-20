@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from scipy.stats import spearmanr
 from ml_project.models.utils import KMeansTransform
 
@@ -78,6 +79,38 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
         check_is_fitted(self, ["coef_", "intercept_"])
         X = check_array(X)
         prediction = super(MLLogisticPredictor, self).predict(X)
+        class_proba = np.zeros((X.shape[0], 4))
+        for i in range(X.shape[0]):
+            class_proba[i] = self.clusters_proba[prediction[i]]
+        return class_proba
+
+    def score(self, X, y):
+        a = self.predict_proba(X)
+        rhos = np.zeros(a.shape[0])
+        for i in range(a.shape[0]):
+            rhos[i] = spearmanr(a[i, :], y[i, :], axis=0)[0]
+        score = rhos.mean()
+        return score
+
+
+class MLKNeighborsPredictor(KNeighborsClassifier, TransformerMixin):
+    def __init__(self, n_clusters=6, n_neighbors=5, weights='uniform', leaf_size=30):
+        self.n_clusters = n_clusters
+        self.clusters_proba = []
+        super(MLKNeighborsPredictor, self).__init__(
+            n_neighbors=n_neighbors, weights=weights, algorithm='auto',
+            leaf_size=leaf_size, n_jobs=4)
+
+    def fit(self, X, y):
+        X, y = check_X_y(X, y, multi_output=True)
+        y_new, self.clusters_proba = KMeansTransform(y, self.n_clusters)
+        super(MLKNeighborsPredictor, self).fit(X, y_new)
+        return self
+
+    def predict_proba(self, X):
+        check_is_fitted(self, ["_fit_method", "_tree"])
+        X = check_array(X)
+        prediction = super(MLKNeighborsPredictor, self).predict(X)
         class_proba = np.zeros((X.shape[0], 4))
         for i in range(X.shape[0]):
             class_proba[i] = self.clusters_proba[prediction[i]]
