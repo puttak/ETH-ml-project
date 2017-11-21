@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import TransformerMixin
 from sklearn.cluster import KMeans
 from sklearn.model_selection import StratifiedKFold
 
@@ -26,7 +26,8 @@ class MLStratifiedKFold(StratifiedKFold, TransformerMixin):
     """
     Wrapper around StratifiedKFold to allow use in multi-label classification
     """
-    def __init__(self, n_clusters=6, n_splits=3, shuffle=False, random_state=None):
+    def __init__(self, n_clusters=6, n_splits=3,
+                 shuffle=False, random_state=None):
         self.n_clusters = n_clusters
         super(MLStratifiedKFold, self).__init__(
             n_splits=n_splits, shuffle=shuffle, random_state=random_state)

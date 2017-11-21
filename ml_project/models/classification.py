@@ -27,6 +27,7 @@ class MeanPredictor(BaseEstimator, TransformerMixin):
         score = rhos.mean()
         return score
 
+
 class MLLinearPredictor(LinearRegression, TransformerMixin):
     """
     Perform linear regression on the data for every target label independently
@@ -94,7 +95,8 @@ class MLLogisticPredictor(LogisticRegression, TransformerMixin):
 
 
 class MLKNeighborsPredictor(KNeighborsClassifier, TransformerMixin):
-    def __init__(self, n_clusters=6, n_neighbors=5, weights='uniform', leaf_size=30):
+    def __init__(self, n_clusters=6, n_neighbors=5,
+                 weights='uniform', leaf_size=30):
         self.n_clusters = n_clusters
         self.clusters_proba = []
         super(MLKNeighborsPredictor, self).__init__(
