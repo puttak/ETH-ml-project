@@ -11,9 +11,9 @@ class RandomForestPredictor(RandomForestClassifier, TransformerMixin):
     """
     def __init__(self, n_estimators=20, n_jobs=4,
                  class_weight='balanced_subsample', debug=False):
+        self.debug = debug
         super(RandomForestPredictor, self).__init__(
             n_estimators=n_estimators, n_jobs=n_jobs, class_weight=class_weight)
-        self.debug = debug
 
     def fit(self, X, y):
         X, y = check_X_y(X, y, multi_output=True)
