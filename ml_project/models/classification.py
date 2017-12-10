@@ -29,7 +29,7 @@ class RandomForestPredictor(RandomForestClassifier, TransformerMixin):
         prediction = super(RandomForestPredictor, self).predict(X)
         if self.debug:
             print("Predicting {} samples".format(X.shape[0]))
-        return int(prediction)
+        return prediction.astype(int)
 
     def score(self, X, y):
         prediction = self.predict(X)
