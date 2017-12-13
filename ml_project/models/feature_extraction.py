@@ -62,7 +62,7 @@ class RDistanceExtractor(BaseEstimator, TransformerMixin):
         if self.save_path:
             fname = "features_{}_{}.npy".format(
                     self.segmenter.__name__, int(self.sampling_rate))
-            np.save(join(self.save_path, fname), X_new)
+            np.save(join(self.save_path, fname), self.X_new)
         return self.X_new
 
     def _compute_features(self, index, signal):
