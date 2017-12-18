@@ -1,7 +1,5 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.utils.validation import check_array
 import numpy as np
-import matplotlib.pyplot as plt
 import multiprocessing as mp
 from biosppy.signals import ecg
 from time import time
@@ -50,10 +48,10 @@ class RDistanceExtractor(BaseEstimator, TransformerMixin):
         if self.verbose:
             start = time()
             print("Extracting features with {} segmenter"
-                    .format(self.segmenter.__name__))
+                  .format(self.segmenter.__name__))
         for i in range(N):
             pool.apply_async(self._compute_features,
-                args=(i, X[i, :]), callback=self._log_result)
+                             args=(i, X[i, :]), callback=self._log_result)
         pool.close()
         pool.join()
         if self.verbose:
@@ -73,14 +71,16 @@ class RDistanceExtractor(BaseEstimator, TransformerMixin):
         features = np.zeros(self.n_bins*2+self.n_hist)
         bin_size = len(signal)/self.n_bins
         bin_stats = np.zeros((self.n_bins, 2))
-        rpeaks = self.segmenter(signal=signal, sampling_rate=self.sampling_rate,
-                           **self.settings)['rpeaks']
+        rpeaks = self.segmenter(signal=signal,
+                                sampling_rate=self.sampling_rate,
+                                **self.settings)['rpeaks']
         distances = np.diff(rpeaks)
         if len(distances) > 0:
             max_idx = len(distances)
             for i in range(self.n_bins):
                 window = [i*bin_size, (i+1)*bin_size]
-                selection = np.where(np.logical_and(rpeaks>window[0], rpeaks<window[1]))[0]
+                selection = np.where(np.logical_and(rpeaks > window[0],
+                                                    rpeaks < window[1]))[0]
                 if max_idx in selection:
                     current_distances = distances[selection[:-1]]
                 else:

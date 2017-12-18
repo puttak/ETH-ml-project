@@ -1,5 +1,4 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.feature_selection import SelectFromModel
 from sklearn.ensemble import RandomForestClassifier
@@ -10,7 +9,8 @@ class RandomForestSelector(BaseEstimator, TransformerMixin):
                  class_weight='balanced_subsample', threshold='mean',
                  verbose=False):
         self.clf = RandomForestClassifier(n_estimators=n_estimators,
-                    n_jobs=n_jobs, class_weight=class_weight)
+                                          n_jobs=n_jobs,
+                                          class_weight=class_weight)
         self.threshold = threshold
         self.verbose = verbose
 
