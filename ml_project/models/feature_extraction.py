@@ -11,11 +11,12 @@ from os.path import join
 class RDistanceExtractor(BaseEstimator, TransformerMixin):
     """
     Extract R-peaks from signal using a segmenter from the biosppy package,
-    divide the signal in n bin and compute the mean and variance of
-    the distance between two peaks in each bin.
+    divide the signal in n bin and compute the mean, the variance and the
+    histogram of the distance between two peaks in each bin.
 
     Args:
         - n_bins (integer): number of bins into which the signal is divided
+        - n_hist (integer): number of bins to use in histogram
         - segmenter (string): name of segmenter from biosppy package
                               to be used
         - sampling_rate (float): sampling rate
@@ -24,10 +25,11 @@ class RDistanceExtractor(BaseEstimator, TransformerMixin):
         - n_jobs (int): number of processes to use in parallel
         - verbose (bool): wheter to output debugging text or not
     """
-    def __init__(self, n_bins=20, segmenter='christov',
+    def __init__(self, n_bins=20, n_hist=10, segmenter='christov',
                  sampling_rate=200.0, save_path=None,
                  settings=None, n_jobs=4, verbose=False):
         self.n_bins = n_bins
+        self.n_hist = n_hist
         self.segmenter = getattr(ecg, segmenter+'_segmenter')
         self.sampling_rate = sampling_rate
         self.save_path = save_path
@@ -43,7 +45,7 @@ class RDistanceExtractor(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         N = X.shape[0]
-        self.X_new = np.zeros((N, self.n_bins*2))
+        self.X_new = np.zeros((N, self.n_bins*2+self.n_hist))
         pool = mp.Pool(processes=self.n_jobs)
         if self.verbose:
             start = time()
@@ -68,29 +70,34 @@ class RDistanceExtractor(BaseEstimator, TransformerMixin):
     def _compute_features(self, index, signal):
         if self.verbose:
             start = time()
+        features = np.zeros(self.n_bins*2+self.n_hist)
         bin_size = len(signal)/self.n_bins
-        features = np.zeros((self.n_bins, 2))
+        bin_stats = np.zeros((self.n_bins, 2))
         rpeaks = self.segmenter(signal=signal, sampling_rate=self.sampling_rate,
                            **self.settings)['rpeaks']
         distances = np.diff(rpeaks)
-        max_idx = len(distances)
-        for i in range(self.n_bins):
-            window = [i*bin_size, (i+1)*bin_size]
-            selection = np.where(np.logical_and(rpeaks>window[0], rpeaks<window[1]))[0]
-            if max_idx in selection:
-                current_distances = distances[selection[:-1]]
-            else:
-                current_distances = distances[selection]
-            if len(current_distances) > 0:
-                current_mean = np.mean(current_distances)
-                current_var = np.var(current_distances)
-            else:
-                current_mean = -1
-                current_var = -1
-            features[i, :] = [current_mean, current_var]
+        if len(distances) > 0:
+            max_idx = len(distances)
+            for i in range(self.n_bins):
+                window = [i*bin_size, (i+1)*bin_size]
+                selection = np.where(np.logical_and(rpeaks>window[0], rpeaks<window[1]))[0]
+                if max_idx in selection:
+                    current_distances = distances[selection[:-1]]
+                else:
+                    current_distances = distances[selection]
+                if len(current_distances) > 0:
+                    current_mean = np.mean(current_distances)
+                    current_var = np.var(current_distances)
+                else:
+                    current_mean = -1
+                    current_var = -1
+                bin_stats[i, :] = [current_mean, current_var]
+            hist, _ = np.histogram(distances, bins=self.n_hist, density=True)
+            features[:self.n_bins*2] = bin_stats.flatten()
+            features[-self.n_hist:] = hist
         result = {
             'index': index,
-            'features': features.flatten()}
+            'features': features}
         if self.verbose:
             end = time()
             result['exec_time'] = end-start
